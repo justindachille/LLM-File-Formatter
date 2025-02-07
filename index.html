@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LLM File Formatter</title>
+    <style>
+        body { max-width: 800px; margin: 2rem auto; padding: 0 1rem; font-family: system-ui, sans-serif; }
+        .drop-zone { border: 2px dashed #ccc; padding: 2rem; text-align: center; margin: 1rem 0; }
+        .drop-zone.drag-over { background: #f0f0f0; }
+        pre { background: #f5f5f5; padding: 1rem; white-space: pre-wrap; word-break: break-all; position: relative; }
+        .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.5rem 1rem; }
+    </style>
+</head>
+<body>
+    <h1>LLM File Formatter</h1>
+    <div class="drop-zone" id="dropZone">
+        Drop files here or click to select
+        <input type="file" id="fileInput" multiple style="display: none">
+    </div>
+    <pre id="output"></pre>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const output = document.getElementById('output');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        async function handleFiles(files) {
+            const fileData = [];
+            
+            for (const file of files) {
+                const content = await file.text();
+                fileData.push({ name: file.name, content });
+            }
+            
+            const formatted = fileData.map(file => 
+                `<document>\n<source>${file.name}</source>\n<document_content>\n${file.content}\n</document_content>\n</document>`
+            ).join('\n\n');
+            
+            output.textContent = formatted;
+            
+            // Add copy button if not exists
+            if (!document.querySelector('.copy-btn')) {
+                const copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.textContent = 'Copy';
+                copyBtn.onclick = async () => {
+                    await navigator.clipboard.writeText(formatted);
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+                };
+                output.appendChild(copyBtn);
+            }
+        }
+    </script>
+</body>
+</html>
