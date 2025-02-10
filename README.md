@@ -1,6 +1,6 @@
 # LLM File Formatter 📂
 
-A simple, browser-based tool that formats multiple files into a structure that's easy to paste into AI language models like GPT or Claude. Perfect for developers seeking AI assistance with their codebase.
+A simple, browser-based tool that formats multiple files into a structure that's easy to paste into LLMs. Perfect for developers seeking AI assistance with codebases with multiple files or folders.
 
 Try it here: [LLM File Formatter](https://justindachille.github.io/LLM-File-Formatter/)
 
