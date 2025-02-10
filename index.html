@@ -3,28 +3,242 @@
 <head>
     <title>LLM File Formatter</title>
     <style>
-        body { max-width: 800px; margin: 2rem auto; padding: 0 1rem; font-family: system-ui, sans-serif; }
-        .drop-zone { border: 2px dashed #ccc; padding: 2rem; text-align: center; margin: 1rem 0; }
-        .drop-zone.drag-over { background: #f0f0f0; }
-        pre { background: #f5f5f5; padding: 1rem; white-space: pre-wrap; word-break: break-all; position: relative; }
-        .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; padding: 0.5rem 1rem; }
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #fafafa;
+            --text: #1f2937;
+            --border: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 2rem;
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.5;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .drop-zone { 
+            border: 2px dashed var(--border);
+            border-radius: 0.75rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background: #f8fafc;
+        }
+
+        .drop-zone.drag-over { 
+            background: #f1f5f9;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin: 0 0.5rem;
+        }
+
+        .btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .error {
+            color: #dc2626;
+            margin: 0.5rem 0;
+            font-size: 0.9rem;
+        }
+
+        pre { 
+            background: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            position: relative;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .copy-btn { 
+            position: absolute; 
+            top: 1rem; 
+            right: 1rem; 
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .status {
+            text-align: center;
+            color: #6b7280;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .info-section {
+            margin-top: 4rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .example {
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9em;
+            border: 1px solid var(--border);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin: 1.5rem 0 0.5rem 0;
+            color: var(--text);
+        }
+
+        ul {
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin: 0.5rem 0;
+        }
+
+        strong {
+            color: var(--primary-dark);
+        }
     </style>
 </head>
 <body>
     <h1>LLM File Formatter</h1>
-    <div class="drop-zone" id="dropZone">
-        Drop files here or click to select
-        <input type="file" id="fileInput" multiple style="display: none">
+    <p class="subtitle">Format your project files for AI assistance</p>
+
+    <div class="container">
+        <div class="drop-zone" id="dropZone">
+            <div>
+                <h3>Drop files or folders here</h3>
+                <p style="color: #6b7280; margin-top: 0.5rem">or use the buttons below</p>
+            </div>
+            
+            <div>
+                <input type="file" id="fileInput" multiple style="display: none">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Select Files</button>
+                
+                <input type="file" id="folderInput" webkitdirectory directory multiple style="display: none">
+                <button class="btn" onclick="document.getElementById('folderInput').click()">Select Folder</button>
+            </div>
+        </div>
+        <div id="error" class="error"></div>
+        <div id="status" class="status"></div>
+        <pre id="output"></pre>
     </div>
-    <pre id="output"></pre>
+
+    <div class="info-section">
+        <h2>How to use this tool</h2>
+        <p>This tool helps you format multiple files for input into AI language models (like GPT or Claude). It's especially useful for developers working with complex projects who want AI assistance with their codebase.</p>
+        
+        <h3>Common Use Cases</h3>
+        <ul>
+            <li><strong>Frontend Development:</strong> Drop in your entire React/Vue/Angular component folder to get AI help with refactoring, bug fixing, or adding new features</li>
+            <li><strong>Code Review:</strong> Format multiple changed files for AI review</li>
+            <li><strong>Project Analysis:</strong> Get AI assistance understanding a new codebase by sharing multiple files at once</li>
+        </ul>
+
+        <h3>Example Scenario</h3>
+        <p>You're working on a React component that's acting weird. You can drag in:</p>
+        <div class="example">
+        📁 components/Header/<br>
+        ├─ Header.jsx<br>
+        ├─ styles.css<br>
+        ├─ utils.js<br>
+        └─ tests.js
+        </div>
+        <p>Then paste the formatted output into an AI chat with a question like: "The dropdown in this header component isn't working properly on mobile. Can you help me debug it?"</p>
+    </div>
 
     <script>
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
+        const folderInput = document.getElementById('folderInput');
         const output = document.getElementById('output');
+        const status = document.getElementById('status');
+        const error = document.getElementById('error');
 
-        dropZone.addEventListener('click', () => fileInput.click());
-        
+        // Make the whole drop zone clickable
+        dropZone.addEventListener('click', (e) => {
+            // Only trigger if clicking the drop zone itself, not its children
+            if (e.target === dropZone) {
+                fileInput.click();
+            }
+        });
+
         dropZone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropZone.classList.add('drag-over');
@@ -37,19 +251,95 @@
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
-            handleFiles(e.dataTransfer.files);
+            handleDroppedItems(e.dataTransfer.items);
         });
         
         fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
+            handleFiles(Array.from(e.target.files));
         });
 
+        folderInput.addEventListener('change', (e) => {
+            handleFiles(Array.from(e.target.files));
+        });
+
+        async function handleDroppedItems(items) {
+            const files = [];
+            const queue = Array.from(items);
+
+            while (queue.length > 0) {
+                const item = queue.shift();
+                if (item.kind === 'file') {
+                    const entry = item.webkitGetAsEntry();
+                    if (entry) {
+                        if (entry.isDirectory) {
+                            await readDirectory(entry, files);
+                        } else {
+                            const file = item.getAsFile();
+                            if (file) files.push(file);
+                        }
+                    }
+                }
+            }
+
+            handleFiles(files);
+        }
+
+        function readDirectory(dirEntry, files) {
+            return new Promise((resolve) => {
+                const reader = dirEntry.createReader();
+                const readEntries = () => {
+                    reader.readEntries(async (entries) => {
+                        if (entries.length === 0) {
+                            resolve();
+                        } else {
+                            for (const entry of entries) {
+                                if (entry.isDirectory) {
+                                    await readDirectory(entry, files);
+                                } else {
+                                    entry.file((file) => {
+                                        files.push(file);
+                                    });
+                                }
+                            }
+                            readEntries();
+                        }
+                    });
+                };
+                readEntries();
+            });
+        }
+
         async function handleFiles(files) {
+            error.textContent = '';
+            status.textContent = `Processing ${files.length} files...`;
             const fileData = [];
+            const skippedFiles = [];
             
             for (const file of files) {
-                const content = await file.text();
-                fileData.push({ name: file.name, content });
+                try {
+                    // Try to read as text, if it fails, add to skipped files
+                    try {
+                        const content = await file.text();
+                        // Get relative path if it exists (for folders)
+                        const path = file.webkitRelativePath || file.name;
+                        fileData.push({ name: path, content });
+                    } catch (e) {
+                        skippedFiles.push(file.name);
+                        continue;
+                    }
+                } catch (error) {
+                    console.error(`Error reading file ${file.name}:`, error);
+                    skippedFiles.push(file.name);
+                }
+            }
+            
+            if (skippedFiles.length > 0) {
+                error.textContent = `Skipped non-text files: ${skippedFiles.join(', ')}`;
+            }
+
+            if (fileData.length === 0) {
+                status.textContent = 'No text files to process';
+                return;
             }
             
             const formatted = fileData.map(file => 
@@ -57,19 +347,22 @@
             ).join('\n\n');
             
             output.textContent = formatted;
+            status.textContent = `Processed ${fileData.length} files${skippedFiles.length ? ` (skipped ${skippedFiles.length} non-text files)` : ''}`;
             
-            // Add copy button if not exists
-            if (!document.querySelector('.copy-btn')) {
-                const copyBtn = document.createElement('button');
+            // Add or update copy button
+            let copyBtn = document.querySelector('.copy-btn');
+            if (!copyBtn) {
+                copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
-                copyBtn.textContent = 'Copy';
-                copyBtn.onclick = async () => {
-                    await navigator.clipboard.writeText(formatted);
-                    copyBtn.textContent = 'Copied!';
-                    setTimeout(() => copyBtn.textContent = 'Copy', 2000);
-                };
                 output.appendChild(copyBtn);
             }
+            
+            copyBtn.textContent = 'Copy';
+            copyBtn.onclick = async () => {
+                await navigator.clipboard.writeText(formatted);
+                copyBtn.textContent = 'Copied!';
+                setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+            };
         }
     </script>
 </body>
